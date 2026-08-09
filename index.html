@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+</head>
+
+<body>
+  
+</body>
+
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediaGrab - Video Downloader</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #08090d;
+      color: white;
+      display: flex;
+      justify-content: center;
+      padding: 30px 15px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+    }
+
+    .logo {
+      text-align: center;
+      margin: 25px 0 35px;
+    }
+
+    .logo h1 {
+      font-size: 38px;
+      background: linear-gradient(90deg, #ff3d81, #8b5cf6, #00c2ff);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .logo p {
+      color: #9296a5;
+      margin-top: 8px;
+    }
+
+    .card {
+      background: #11131a;
+      border: 1px solid #242733;
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 15px 50px rgba(0,0,0,.35);
+    }
+
+    label {
+      display: block;
+      color: #b7bbc8;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .input-box {
+      display: flex;
+      gap: 8px;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #303442;
+      outline: none;
+      background: #0b0d12;
+      color: white;
+      font-size: 15px;
+    }
+
+    input:focus {
+      border-color: #7c5cff;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    .paste {
+      width: 70px;
+      background: #252938;
+      color: white;
+    }
+
+    .download {
+      width: 100%;
+      margin-top: 15px;
+      padding: 16px;
+      background: linear-gradient(90deg, #7c3cff, #e83cff);
+      color: white;
+      font-size: 16px;
+    }
+
+    .download:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .platforms {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .platform {
+      padding: 12px 5px;
+      text-align: center;
+      background: #181b24;
+      border-radius: 10px;
+      color: #aaaebb;
+      font-size: 12px;
+    }
+
+    .result {
+      display: none;
+      margin-top: 20px;
+      padding: 18px;
+      background: #181b24;
+      border-radius: 14px;
+    }
+
+    .result.show {
+      display: block;
+    }
+
+    .result h3 {
+      margin-bottom: 12px;
+    }
+
+    .quality {
+      width: 100%;
+      padding: 13px;
+      background: #0b0d12;
+      color: white;
+      border: 1px solid #303442;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    .save {
+      display: block;
+      text-align: center;
+      padding: 13px;
+      border-radius: 10px;
+      background: #19c37d;
+      color: #06130e;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 15px;
+      color: #9ca1b1;
+      font-size: 14px;
+    }
+
+    .supported {
+      text-align: center;
+      color: #777c8d;
+      font-size: 12px;
+      margin-top: 22px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 450px) {
+      .input-box {
+        flex-wrap: wrap;
+      }
+
+      input {
+        width: 100%;
+        flex-basis: 100%;
+      }
+
+      .paste {
+        width: 100%;
+        padding: 13px;
+      }
+
+      .platforms {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+
+    <div class="logo">
+      <h1>MediaGrab</h1>
+      <p>Download media from supported platforms</p>
+    </div>
+
+    <section class="card">
+
+      <label for="url">Paste video or post URL</label>
+
+      <div class="input-box">
+        <input
+          id="url"
+          type="url"
+          placeholder="https://..."
+          autocomplete="off"
+        >
+
+        <button class="paste" onclick="pasteURL()">
+          Paste
+        </button>
+      </div>
+
+      <button
+        class="download"
+        id="downloadBtn"
+        onclick="fetchMedia()"
+      >
+        Get Media
+      </button>
+
+      <div class="platforms">
+        <div class="platform">Instagram</div>
+        <div class="platform">YouTube</div>
+        <div class="platform">TikTok</div>
+        <div class="platform">Facebook</div>
+        <div class="platform">X / Twitter</div>
+        <div class="platform">Pinterest</div>
+      </div>
+
+      <div id="result" class="result">
+        <h3 id="mediaTitle">Media found</h3>
+
+        <select id="quality" class="quality">
+          <option value="">Select quality</option>
+        </select>
+
+        <a
+          id="saveBtn"
+          class="save"
+          href="#"
+          target="_blank"
+          rel="noopener"
+        >
+          Download
+        </a>
+      </div>
+
+      <div id="status" class="status"></div>
+
+    </section>
+
+    <p class="supported">
+      Only download content you have permission to download.
+      Private or protected content is not supported.
+    </p>
+
+  </main>
+
+<script>
+
+  /*
+    CHANGE THIS TO YOUR BACKEND API.
+
+    Example:
+    https://your-domain.com/api/media
+  */
+  const API_URL = "https://YOUR-BACKEND-DOMAIN.com/api/media";
+
+
+  async function pasteURL() {
+    try {
+      const text = await navigator.clipboard.readText();
+
+      document.getElementById("url").value = text;
+
+    } catch (error) {
+      setStatus("Clipboard permission was denied.");
+    }
+  }
+
+
+  function detectPlatform(url) {
+
+    const value = url.toLowerCase();
+
+    if (
+      value.includes("instagram.com") ||
+      value.includes("instagr.am")
+    ) {
+      return "instagram";
+    }
+
+    if (
+      value.includes("youtube.com") ||
+      value.includes("youtu.be")
+    ) {
+      return "youtube";
+    }
+
+    if (
+      value.includes("tiktok.com")
+    ) {
+      return "tiktok";
+    }
+
+    if (
+      value.includes("facebook.com") ||
+      value.includes("fb.watch")
+    ) {
+      return "facebook";
+    }
+
+    if (
+      value.includes("twitter.com") ||
+      value.includes("x.com")
+    ) {
+      return "twitter";
+    }
+
+    if (
+      value.includes("pinterest.com") ||
+      value.includes("pin.it")
+    ) {
+      return "pinterest";
+    }
+
+    return null;
+  }
+
+
+  async function fetchMedia() {
+
+    const input = document.getElementById("url");
+    const button = document.getElementById("downloadBtn");
+
+    const url = input.value.trim();
+
+    if (!url) {
+      setStatus("Please paste a URL first.");
+      return;
+    }
+
+    const platform = detectPlatform(url);
+
+    if (!platform) {
+      setStatus("This platform is not supported.");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Getting media...";
+
+    setStatus("Processing your URL...");
+
+    try {
+
+      /*
+        Your backend should accept:
+
+        POST /api/media
+
+        {
+          "url": "...",
+          "platform": "youtube"
+        }
+
+        Expected response:
+
+        {
+          "title": "Example video",
+          "formats": [
+            {
+              "quality": "720p",
+              "url": "https://your-authorized-download-url"
+            },
+            {
+              "quality": "1080p",
+              "url": "https://your-authorized-download-url"
+            }
+          ]
+        }
+      */
+
+      const response = await fetch(API_URL, {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          url: url,
+          platform: platform
+        })
+
+      });
+
+
+      if (!response.ok) {
+        throw new Error("Server error");
+      }
+
+
+      const data = await response.json();
+
+      showResult(data);
+
+      setStatus("Media is ready.");
+
+    } catch (error) {
+
+      console.error(error);
+
+      setStatus(
+        "Could not get the media. Check your backend/API."
+      );
+
+    } finally {
+
+      button.disabled = false;
+      button.textContent = "Get Media";
+
+    }
+  }
+
+
+  function showResult(data) {
+
+    const result = document.getElementById("result");
+    const title = document.getElementById("mediaTitle");
+    const quality = document.getElementById("quality");
+    const save = document.getElementById("saveBtn");
+
+    result.classList.add("show");
+
+    title.textContent =
+      data.title || "Media found";
+
+    quality.innerHTML =
+      '<option value="">Select quality</option>';
+
+    if (!data.formats || !data.formats.length) {
+
+      setStatus("No downloadable formats were returned.");
+      return;
+
+    }
+
+    data.formats.forEach(format => {
+
+      const option = document.createElement("option");
+
+      option.value = format.url;
+
+      option.textContent =
+        format.quality || "Available";
+
+      quality.appendChild(option);
+
+    });
+
+
+    quality.onchange = function() {
+
+      if (this.value) {
+        save.href = this.value;
+        save.style.pointerEvents = "auto";
+        save.style.opacity = "1";
+      } else {
+        save.href = "#";
+        save.style.opacity = ".5";
+      }
+
+    };
+
+    save.href = "#";
+    save.style.opacity = ".5";
+  }
+
+
+  function setStatus(message) {
+
+    document.getElementById("status").textContent =
+      message;
+
+  }
+
+</script>
+
+</body>
+</html>
